@@ -4,9 +4,11 @@ using namespace std;
 
 // Tema Papetarie - Pîrlog Patricia
 
+class Pix;
+
 class Carte
 {
-public:
+private:
 	const int id;
 	static int nrCarti;
 	static int nrTotalPagini;
@@ -15,6 +17,23 @@ public:
 	char** autori;
 	int nrAutori;
 	float pret;
+
+public:
+	Carte(const Carte& carte) :id(carte.id)
+	{
+		this->pret = carte.pret;
+		this->titlu = carte.titlu;
+		this->nrAutori = carte.nrAutori;
+		this->autori = new char* [nrAutori];
+		this->pagini = carte.pagini;
+		for (int i = 0; i < this->nrAutori; i++)
+		{
+			this->autori[i] = new char[strlen(carte.autori[i]) + 1];
+			strcpy_s(this->autori[i], strlen(carte.autori[i]) + 1, carte.autori[i]);
+		}
+		nrCarti++;
+		nrTotalPagini += pagini;
+	}
 
 	Carte(int id, float pret, string titlu, char** autori, int nrAutori, int pagini) : id(id)
 	{
@@ -89,17 +108,120 @@ public:
 		cout << endl << endl;
 	}
 
+	void setTitlu(string value)
+	{
+		titlu = value;
+	}
+
+	string getTitlu()
+	{
+		return titlu;
+	}
+
+	void setPagini(int value)
+	{
+		nrTotalPagini = nrTotalPagini - pagini + value;
+		pagini = value;
+	}
+
+	int getPagini()
+	{
+		return pagini;
+	}
+
+	void setAutori(char** autori, int nrAutori)
+	{
+		if (nrAutori > 0)
+		{
+			if (this->autori != NULL)
+			{
+				for (int i = 0; i < this->nrAutori; i++)
+				{
+					delete[] this->autori[i];
+				}
+				delete[] this->autori;
+			}
+			this->nrAutori = nrAutori;
+			this->autori = new char* [this->nrAutori];
+			for (int i = 0; i < this->nrAutori; i++)
+			{
+				this->autori[i] = new char[strlen(autori[i]) + 1];
+				strcpy_s(this->autori[i], strlen(autori[i]) + 1, autori[i]);
+			}
+		}
+	}
+
+	int getNrAutori()
+	{
+		return nrAutori;
+	}
+
+	char** getAutori()
+	{
+		return autori;
+	}
+
+	void setPret(float value)
+	{
+		pret = value;
+	}
+
+	float getPret()
+	{
+		return pret;
+	}
+
+	int getId()
+	{
+		return id;
+	}
+
+	static void setNrTotalPagini(int nrPagini)
+	{
+		nrTotalPagini = nrPagini;
+	}
+
+	static int getNrTotalPagini()
+	{
+		return nrTotalPagini;
+	}
+
+	static void setNrCarti(int value)
+	{
+		nrCarti = value;
+	}
+
+	static int getNrCarti()
+	{
+		return nrCarti;
+	}
+
+	friend float ofertaCarteSiPix(Pix, Carte);
+
 };
 
 class Pix
 {
-public:
+private:
 	const int id;
 	static int nrPixuri;
 	// culoarea scrisa de pix
 	char** culori;
 	float pret;
 	int nrCulori;
+public:
+	Pix(const Pix& pix) :id(pix.id)
+	{
+		this->pret = pix.pret;
+		this->nrCulori = pix.nrCulori;
+		this->culori = new char* [pix.nrCulori];
+		for (int i = 0; i < this->nrCulori; i++)
+		{
+			this->culori[i] = new char[strlen(pix.culori[i]) + 1];
+			strcpy_s(this->culori[i], strlen(pix.culori[i]) + 1, pix.culori[i]);
+		}
+		nrPixuri++;
+	}
 
 	Pix(int id, float pret, char** culori, int nrCulori) : id(id)
 	{
@@ -174,11 +296,69 @@ public:
 		cout << endl << endl;
 	}
 
+	void setCulori(char** culori, int nrCulori)
+	{
+		if (nrCulori > 0)
+		{
+			if (this->culori != NULL)
+			{
+				for (int i = 0; i < this->nrCulori; i++)
+				{
+					delete[] this->culori[i];
+				}
+				delete[] this->culori;
+			}
+			this->nrCulori = nrCulori;
+			this->culori = new char* [this->nrCulori];
+			for (int i = 0; i < this->nrCulori; i++)
+			{
+				this->culori[i] = new char[strlen(culori[i]) + 1];
+				strcpy_s(this->culori[i], strlen(culori[i]) + 1, culori[i]);
+			}
+		}
+	}
+
+	int getNrCulori()
+	{
+		return nrCulori;
+	}
+
+	char** getCulori()
+	{
+		return culori;
+	}
+
+	void setPret(float value)
+	{
+		pret = value;
+	}
+
+	float getPret()
+	{
+		return pret;
+	}
+
+	int getId()
+	{
+		return id;
+	}
+
+	static void setNrPixuri(int value)
+	{
+		nrPixuri = value;
+	}
+
+	static int getNrPixuri()
+	{
+		return nrPixuri;
+	}
+
+	friend float ofertaCarteSiPix(Pix, Carte);
 };
 
-class CreionColorat
+class CreioaneColorate
 {
-public:
+private:
 	const int id;
 	static int nrSeturi;
 	static int nrTotalCreioane;
@@ -187,8 +367,23 @@ public:
 	string firmaProducatoare;
 	float pret;
 
+public:
+	CreioaneColorate(const CreioaneColorate& set) :id(set.id)
+	{
+		this->pret = set.pret;
+		this->firmaProducatoare = set.firmaProducatoare;
+		this->nrCreioane = set.nrCreioane;
+		this->creioane = new char* [set.nrCreioane];
+		for (int i = 0; i < this->nrCreioane; i++)
+		{
+			this->creioane[i] = new char[strlen(set.creioane[i]) + 1];
+			strcpy_s(this->creioane[i], strlen(set.creioane[i]) + 1, set.creioane[i]);
+		}
+		nrSeturi++;
+		nrTotalCreioane += nrCreioane;
+	}
 
-	CreionColorat(int id, float pret, char** creioane, int nrCreioane, string firmaProducatoare) : id(id)
+	CreioaneColorate(int id, float pret, char** creioane, int nrCreioane, string firmaProducatoare) : id(id)
 	{
 		this->pret = pret;
 		this->firmaProducatoare = firmaProducatoare;
@@ -203,7 +398,7 @@ public:
 		nrTotalCreioane += nrCreioane;
 	}
 
-	CreionColorat(int id, float pret, char** creioane, int nrCreioane) : id(id)
+	CreioaneColorate(int id, float pret, char** creioane, int nrCreioane) : id(id)
 	{
 		this->pret = pret;
 		this->nrCreioane = nrCreioane;
@@ -218,7 +413,7 @@ public:
 		nrTotalCreioane += nrCreioane;
 	}
 
-	CreionColorat(int id, float pret, char* creion) : id(id)
+	CreioaneColorate(int id, float pret, char* creion) : id(id)
 	{
 		this->pret = pret;
 		this->firmaProducatoare = "Necunoscuta";
@@ -231,7 +426,7 @@ public:
 		nrTotalCreioane += nrCreioane;
 	}
 
-	~CreionColorat()
+	~CreioaneColorate()
 	{
 		nrSeturi--;
 		nrTotalCreioane -= nrCreioane;
@@ -261,15 +456,105 @@ public:
 		cout << endl << endl;
 	}
 
+	void setCreioane(char** creioane, int nrCreioane)
+	{
+		if (nrCreioane > 0)
+		{
+			if (this->creioane != NULL)
+			{
+				for (int i = 0; i < this->nrCreioane; i++)
+				{
+					delete[] this->creioane[i];
+				}
+				delete[] this->creioane;
+			}
+			this->nrCreioane = nrCreioane;
+			this->creioane = new char* [this->nrCreioane];
+			for (int i = 0; i < this->nrCreioane; i++)
+			{
+				this->creioane[i] = new char[strlen(creioane[i]) + 1];
+				strcpy_s(this->creioane[i], strlen(creioane[i]) + 1, creioane[i]);
+			}
+		}
+	}
+
+	int getNrCreioane()
+	{
+		return nrCreioane;
+	}
+
+	char** getCreioane()
+	{
+		return creioane;
+	}
+
+	void setPret(float value)
+	{
+		pret = value;
+	}
+
+	float getPret()
+	{
+		return pret;
+	}
+
+	int getId()
+	{
+		return id;
+	}
+
+	void setFirmaProducatoare(string value)
+	{
+		firmaProducatoare = value;
+	}
+
+	string getFirmaProducatoare()
+	{
+		return firmaProducatoare;
+	}
+
+	static void setNrTotalCreioane(int value)
+	{
+		nrTotalCreioane = value;
+	}
+
+	static int getNrTotalCreioane()
+	{
+		return nrTotalCreioane;
+	}
+
+	static void setNrSeturi(int value)
+	{
+		nrSeturi = value;
+	}
+
+	static int getNrSeturi()
+	{
+		return nrSeturi;
+	}
+
+	friend bool verificaIdValid(CreioaneColorate creion);
+
 };
+
+float ofertaCarteSiPix(Pix pix, Carte carte)
+{
+	return pix.pret + carte.pret;
+}
+
+
+bool verificaIdValid(CreioaneColorate creion)
+{
+	return creion.id > 0;
+}
 
 int Carte::nrCarti = 0;
 int Carte::nrTotalPagini = 0;
 
 int Pix::nrPixuri = 0;
 
-int CreionColorat::nrSeturi = 0;
-int CreionColorat::nrTotalCreioane = 0;
+int CreioaneColorate::nrSeturi = 0;
+int CreioaneColorate::nrTotalCreioane = 0;
 
 void main()
 {
@@ -282,11 +567,39 @@ void main()
 	Carte carte1(1, 9.99, "Istoria religiilor", autori, 2, 300);
 	Carte carte2(2, 7, "Povestea lui Harap-Alb", autori[1], 562);
 	Carte carte3(3, 25, "Basm", 562);
+	Carte carte4(carte1);
+
+	delete[] autori[0];
+	delete[] autori[1];
+	autori[0] = new char[strlen("Mihai Eminescu") + 1];
+	autori[1] = new char[strlen("Sven Hassel") + 1];
+	strcpy_s(autori[0], strlen("Mihai Eminescu") + 1, "Mihai Eminescu");
+	strcpy_s(autori[1], strlen("Sven Hassel") + 1, "Sven Hassel");
+
+
+	carte4.setAutori(autori, 2);
+	carte4.setPagini(334);
+	carte4.setPret(555);
+	carte4.setTitlu("Titlu Carte");
+
+	cout << "\nID : " << carte4.getId();
+	cout << "\nTitlu : " << carte4.getTitlu();
+	cout << "\nPagini : " << carte4.getPagini();
+	cout << "\nNr autori" << carte4.getNrAutori();
+
+	for (int i = 0; i < carte4.getNrAutori(); i++)
+	{
+		cout << "\nAutor " << i << " : " << carte4.getAutori()[i];
+	}
+	cout << "\n\n";
+
+	cout << "\nNr total pagini : " << carte4.getNrTotalPagini() << "\n\n";
+
 	carte1.afisare();
 	carte2.afisare();
 	carte3.afisare();
-
-	std::cout << "\nMedie pagini la carti : " << Carte::mediePagini() << "\n";
+	carte4.afisare();
+	std::cout << "\n medie pagini : " << Carte::mediePagini() << "\n";
 
 	delete[] autori[0];
 	delete[] autori[1];
@@ -300,19 +613,54 @@ void main()
 
 	Pix pix1(1, 99, culori, 2);
 	Pix pix2(2, 99, culori[1]);
-	Pix pix3(3, 54);
+	Pix pix3(3, 5455);
+	Pix pix4(pix3);
+
+	pix4.setPret(444.44);
+	pix4.setCulori(culori, 2);
+
+	cout << "\nId : " << pix4.getId();
+	cout << "\nPret : " << pix4.getPret();
+	cout << "\nNr pixuri : " << pix4.getNrPixuri();
+	cout << "\nNr culori : " << pix4.getNrCulori();
+	cout << "\nCulori : \n";
+	for (int i = 0; i < pix4.getNrCulori(); i++)
+	{
+		pix4.getCulori()[i];
+	}
+	cout << " \n\n";
 
 	pix1.afisare();
 	pix2.afisare();
 	pix3.afisare();
+	pix4.afisare();
 
-	CreionColorat set1(1, 32.34, culori, 2, "Pelican");
-	CreionColorat set2(2, 76, culori, 2);
-	CreionColorat set3(3, 10, culori[0]);
+	CreioaneColorate set1(1, 8932.34, culori, 2, "pelican");
+	CreioaneColorate set2(2, 89, culori, 2);
+	CreioaneColorate set3(3, 0, culori[0]);
+	CreioaneColorate set4(set2);
 	set1.afisare();
 	set2.afisare();
 	set3.afisare();
-	std::cout << "\nNr. mediu de creioane in set : " << CreionColorat::nrMediuDeCreioaneInSet() << "\n";
+	set4.afisare();
+
+	set4.setPret(66.6);
+	set4.setFirmaProducatoare("Pelikan");
+	set4.setNrTotalCreioane(89);
+	cout << "\nid : " << set4.getId();
+	cout << "\nfirma producatorare : " << set4.getFirmaProducatoare();
+	cout << "\n\n";
+	for (int i = 0; i < set4.getNrCreioane(); i++)
+	{
+		cout << "\n" << set4.getCreioane()[i];
+	}
+	cout << "\n";
+
+	cout << "\nOferta carte si pix : " << ofertaCarteSiPix(pix1, carte1);
+	if (!verificaIdValid(set1))
+		cout << "Id-ul nu este valid";
+	else
+		cout << "Id-ul este valid";
 
 	delete[] culori[0];
 	delete[] culori[1];
