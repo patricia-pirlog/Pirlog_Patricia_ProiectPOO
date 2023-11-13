@@ -19,6 +19,14 @@ private:
 	float pret;
 
 public:
+	Carte() : id(20)
+	{
+		titlu = "";
+		pagini = 0;
+		autori = NULL;
+		nrAutori = 0;
+		pret = 0;
+	}
 	Carte(const Carte& carte) :id(carte.id)   //constructorul de copiere
 	{
 		this->pret = carte.pret;
@@ -50,7 +58,7 @@ public:
 			this->autori = new char* [carte.nrAutori];
 			this->pagini = carte.pagini;
 			for (int i = 0; i < this->nrAutori; i++) {
-				this->autori[i] = new char[strlen(carte.autori[i] )+1];
+				this->autori[i] = new char[strlen(carte.autori[i]) + 1];
 				strcpy_s(this->autori[i], strlen(carte.autori[i]) + 1, carte.autori[i]);
 
 			}
@@ -75,7 +83,7 @@ public:
 				delete[]carte.autori[i];
 			delete[]carte.autori;
 		}
-	
+
 		carte.autori = new char* [carte.nrAutori];
 		for (int i = 0; i < carte.nrAutori; i++)
 		{
@@ -83,9 +91,9 @@ public:
 			cout << "Autorul cartii" << i + 1 << ":";
 			in >> aux;
 			carte.autori[i] = new char[aux.length() + 1];
-			strcpy_s(carte.autori[i], aux.length() + 1, aux.c_str());   
+			strcpy_s(carte.autori[i], aux.length() + 1, aux.c_str());
 		}
-		return in; 
+		return in;
 	}
 	//ostream
 	friend ostream& operator<<(ostream& out, const Carte& carte)
@@ -104,7 +112,7 @@ public:
 
 	//operator <
 	bool operator<(const Carte& c) {
-			return this->pret<c.pret;
+		return this->pret < c.pret;
 
 	}
 
@@ -283,6 +291,12 @@ private:
 	float pret;
 	int nrCulori;
 public:
+	Pix() : id(30)
+	{
+		culori = NULL;
+		pret = 0;
+		nrCulori = 0;
+	}
 	Pix(const Pix& pix) :id(pix.id)  //constructorul de copiere
 	{
 		this->pret = pix.pret;
@@ -310,7 +324,7 @@ public:
 			this->pret = pix.pret;
 			this->nrCulori = pix.nrCulori;
 			this->culori = new char* [pix.nrCulori];
-			for (int i = 0; i <nrCulori; i++)
+			for (int i = 0; i < nrCulori; i++)
 			{
 				this->culori[i] = new char[strlen(pix.culori[i]) + 1];
 				strcpy_s(this->culori[i], strlen(pix.culori[i]) + 1, pix.culori[i]);
@@ -350,7 +364,7 @@ public:
 		int i;
 		cout << "\Pix : " << pix.id << "\nPret : " << pix.pret;
 		cout << "\nCulorile pixului : ";
-		if(pix.nrCulori ==0)
+		if (pix.nrCulori == 0)
 			out << "-";
 		else
 			for (int i = 0; i < pix.nrCulori; i++)
@@ -360,11 +374,11 @@ public:
 	}
 
 	//operatorul - 
-	Pix &operator-(const Pix& pix) {
+	Pix& operator-(const Pix& pix) {
 		this->pret -= pix.pret;
 		return *this;
 	}
-	
+
 
 	Pix(int id, float pret, char** culori, int nrCulori) : id(id)
 	{
@@ -511,6 +525,13 @@ private:
 	float pret;
 
 public:
+	CreionColorat() : id(20)
+	{
+		nrCreioane = 0;
+		creioane = NULL;
+		firmaProducatoare = "";
+		pret = 0;
+	}
 	CreionColorat(const CreionColorat& set) :id(set.id)
 	{
 		this->pret = set.pret;
@@ -529,15 +550,15 @@ public:
 	//operator =
 	const CreionColorat& operator=(const CreionColorat& creionC) {
 		if (this != &creionC)
-		{				
-				if (this->creioane != NULL)
+		{
+			if (this->creioane != NULL)
+			{
+				for (int i = 0; i < this->nrCreioane; i++)
 				{
-					for (int i = 0; i < this->nrCreioane; i++)
-					{
-						delete[] creioane[i];
-					}
-					delete[] creioane;
+					delete[] creioane[i];
 				}
+				delete[] creioane;
+			}
 			this->pret = creionC.pret;
 			this->firmaProducatoare = creionC.firmaProducatoare;
 			this->nrCreioane = creionC.nrCreioane;
@@ -574,7 +595,7 @@ public:
 			cout << "Nr creioane din set" << i + 1 << ":";
 			in >> aux;
 			creionC.creioane[i] = new char[aux.length() + 1];
-			strcpy_s(creionC.creioane[i], aux.length() + 1, aux.c_str());   
+			strcpy_s(creionC.creioane[i], aux.length() + 1, aux.c_str());
 		}
 		return in;
 	}
@@ -597,7 +618,7 @@ public:
 
 	//operat ==
 	bool operator==(const CreionColorat& creionC) {
-		return this->pret ==creionC.pret;
+		return this->pret == creionC.pret;
 	}
 
 
@@ -776,6 +797,7 @@ int CreionColorat::nrTotalCreioane = 0;
 
 void main()
 {
+	
 	char** autori = new char* [2];
 	autori[0] = new char[strlen("Mircea Eliade") + 1];
 	autori[1] = new char[strlen("Ion Creanga") + 1];
@@ -792,9 +814,9 @@ void main()
 	cin >> carte5;
 	cout << carte5;
 
-	if (carte1 < carte2) 
-		cout <<endl<< "true"<<endl;
-	else cout<< endl<< "false"<<endl;
+	if (carte1 < carte2)
+		cout << endl << "true" << endl;
+	else cout << endl << "false" << endl;
 
 
 	delete[] autori[0];
@@ -868,7 +890,7 @@ void main()
 	Pix pix5(6, 40);
 	cin >> pix5;
 	cout << pix5;
-	pix3=pix1 - pix2;
+	pix3 = pix1 - pix2;
 	cout << pix3;
 
 
@@ -886,7 +908,7 @@ void main()
 	CreionColorat set5(2, 10, culori, 2);
 	cin >> set5;
 	cout << set5;
-	if (set1==set2)
+	if (set1 == set2)
 		cout << endl << "true" << endl;
 	else cout << endl << "false" << endl;
 
@@ -914,5 +936,74 @@ void main()
 	delete[] culori[1];
 	delete[] culori;
 
+	
+	//faza 4
+	int n;
+	cout << "\nNr carti : ";
+	cin >> n;
+	Carte* carti = new Carte[n];
+	for (int i = 0; i < n; i++)
+	{
+		cin >> carti[i];
+	}
+	for (int i = 0; i < n; i++)
+	{
+		cout << carti[i];
+	}
 
+	delete[] carti;
+
+	cout << "\nNr pixuri : ";
+	cin >> n;
+	Pix* pixuri = new Pix[n];
+	for (int i = 0; i < n; i++)
+	{
+		cin >> pixuri[i];
+	}
+	for (int i = 0; i < n; i++)
+	{
+		cout << pixuri[i];
+	}
+
+	delete[] pixuri;
+
+	cout << "\nCreion colorat : ";
+	cin >> n;
+	CreionColorat* creioane = new CreionColorat[n];
+	for (int i = 0; i < n; i++)
+	{
+		cin >> creioane[i];
+	}
+	for (int i = 0; i < n; i++)
+	{
+		cout << creioane[i];
+	}
+
+	delete[] creioane;
+
+	cout << "\nLinii si coloane matrice : ";
+	cin >> n;
+	Carte** matrice = new Carte * [n];
+	for (int i = 0; i < n; i++)
+	{
+		matrice[i] = new Carte[n];
+		for (int j = 0; j < n; j++)
+		{
+			cin >> matrice[i][j];
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			cout << matrice[i][j];
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		delete[] matrice[i];
+	}
+	delete[] matrice;
 }
