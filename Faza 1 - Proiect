@@ -795,6 +795,141 @@ int Pix::nrPixuri = 0;
 int CreionColorat::nrSeturi = 0;
 int CreionColorat::nrTotalCreioane = 0;
 
+//faza 5
+
+class Biblioteca {                                       
+private:
+	Carte* carti;  //il privesc ca pe un int
+	int nrRafturi;
+	int nrCarti;
+	string nume;
+public:
+
+	Biblioteca() {    //constructor implicit
+		this->nrRafturi = 0;
+		this->nrCarti = 0;
+		this->nume = "No name";
+		this->carti = NULL;
+	}
+
+	Biblioteca(int nrCarti, Carte * carti, int nrRafturi, string nume) {  //constructor cu toti parametrii
+		this->nrRafturi =nrRafturi;
+		this->nume = nume;
+		this->nrCarti = nrCarti;
+		this->carti =new Carte [this->nrCarti];
+		for (int i = 0; i < nrCarti; i++)
+			this->carti[i] = carti[i];
+	}
+
+	Biblioteca(const Biblioteca& b) {   //constructor de copiere
+		this->nrRafturi = b.nrRafturi;
+		this->nume = b.nume;
+		this->nrCarti = b.nrCarti;
+		this->carti = new Carte[this->nrCarti];
+		for (int i = 0; i < nrCarti; i++)
+			this->carti[i] = b.carti[i];
+	}
+
+	~Biblioteca() {   //destructor
+		if (this->carti != NULL)
+			delete[]carti;
+	}
+
+	string getNume() {
+		return this->nume;
+	}
+
+	void setNume(string nume) {
+		this->nume = nume;
+	}
+
+	int getNrCarti() {
+		return this->nrCarti;
+	}
+
+	void setNrCarti(int nrCarti) {
+		this->nrCarti = nrCarti;
+	}
+
+	int getNrRafturi() {
+		return this->nrRafturi;
+	}
+
+	void setNrRafturi(int nrRafturi) {
+		this->nrRafturi = nrRafturi;
+	}
+
+	Carte* getCarti() {
+		return this->carti;   
+	}
+
+	void setCarti(Carte* carti) {
+		if (this->carti != NULL) {
+			delete[]carti;
+		}
+		this->nrCarti = nrCarti;
+		this->carti = new Carte[this->nrCarti];
+		for (int i = 0; i < nrCarti; i++)
+		{
+			this->carti[i] = carti[i];
+		}
+	}
+
+	//ostream
+	friend ostream& operator<<(ostream& out, const Biblioteca& b) {
+		int i;
+		out << "\nNumele bibliotecii este:" << b.nume << endl;
+		out << "\nNr rafturi:" << b.nrRafturi << endl;
+		out << "\nNr cartilor este:" << b.nrCarti << endl;
+		if (b.nrCarti == 0)
+			out << "-";
+		else
+			for (i = 0; i < b.nrCarti; i++) {
+				out << b.carti[i];
+			}
+		return out;
+	}
+
+	//operator =
+	const Biblioteca& operator=(const Biblioteca& b) {
+		if (this != &b) {
+			if (this->carti != NULL)
+				delete[]carti;
+		}
+		this->nrRafturi = b.nrRafturi;
+		this->nume = b.nume;
+		this->nrCarti = b.nrCarti;
+		this->carti = new Carte[this->nrCarti];
+		for (int i = 0; i < nrCarti; i++)
+		{
+			this->carti[i] = b.carti[i];
+		}
+		return *this;
+	}
+
+	explicit operator int() {
+	return this->nrRafturi;
+	}
+
+
+	void afisare() {
+		int i;
+		cout << "\nNumele bibliotecii este:" << nume << endl;
+		cout << "\nNr rafturi:" << nrRafturi << endl;
+		cout << "\nNr cartilor este:" << nrCarti << endl;
+		if (nrCarti == 0)
+			cout << "-";
+		else 
+			for (i = 0; i < nrCarti; i++) {
+				cout << this->carti[i];
+			}
+		cout << endl;
+	}
+
+
+};
+
+
 void main()
 {
 	
@@ -850,6 +985,7 @@ void main()
 	carte3.afisare();
 	carte4.afisare();
 	std::cout << "\n medie pagini : " << Carte::mediePagini() << "\n";
+
 
 	delete[] autori[0];
 	delete[] autori[1];
@@ -936,9 +1072,19 @@ void main()
 	delete[] culori[1];
 	delete[] culori;
 
-	
+	Carte* carti = new Carte[3];
+	carti[0] = carte1;
+	carti[1] = carte2;
+	carti[2] = carte3;
+
+	Biblioteca b1;
+	cout << b1;
+	Biblioteca b2(3, carti, 20, "Nationala");
+	cout << b2;
+
+
 	//faza 4
-	int n;
+	/*int n;
 	cout << "\nNr carti : ";
 	cin >> n;
 	Carte* carti = new Carte[n];
@@ -1005,5 +1151,5 @@ void main()
 	{
 		delete[] matrice[i];
 	}
-	delete[] matrice;
+	delete[] matrice;*/
 }
