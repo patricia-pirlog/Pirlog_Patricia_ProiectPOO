@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 // Tema Papetarie - Pîrlog Patricia
@@ -279,6 +280,87 @@ public:
 
 	friend float ofertaCarteSiPix(Pix, Carte);
 
+
+	friend ofstream& operator<<(ofstream& out, Carte& carte)
+	{
+		out << carte.pret << " " << carte.titlu << " " << carte.nrAutori;
+
+		for (int i = 0; i < carte.nrAutori; i++)
+			out << carte.autori[i] << " ";
+		return out;
+	}
+
+	friend ifstream& operator>>(ifstream& in, Carte& carte)
+	{
+		in >> carte.pret >> carte.titlu >> carte.nrAutori;
+		if (carte.autori != NULL)
+		{
+			for (int i = 0; i < carte.nrAutori; i++)
+			{
+				delete[] carte.autori[i];
+			}
+			delete[] carte.autori;
+		}
+
+		if (carte.nrAutori > 0)
+		{
+			carte.autori = new char* [carte.nrAutori];
+			for (int i = 0; i < carte.nrAutori; i++)
+			{
+				string sir;
+				in >> sir;
+				carte.autori[i] = new char[sir.length() + 1];
+				strcpy_s(carte.autori[i], sir.length() + 1, sir.c_str());
+			}
+		}
+
+		return in;
+	}
+
+	friend void afisareBinar(ofstream& out, Carte& carte)
+	{
+		out.write((char*)&carte.pret, sizeof(int));
+		int lungime = carte.titlu.length();
+		out.write((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			out.write((char*)&carte.autori[i], sizeof(char));
+		}
+		out.write((char*)&carte.nrAutori, sizeof(int));
+		for (int i = 0; i < carte.nrAutori; i++)
+		{
+			lungime = strlen(carte.autori[i]);
+			out.write((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++)
+			{
+				out.write((char*)&carte.autori[i][j], sizeof(char));
+			}
+
+		}
+	}
+
+	friend void citireBinar(ifstream& in, Carte& carte)
+	{
+		int lungime;
+		in.read((char*)&carte.pret, sizeof(int));
+		in.read((char*)&lungime, sizeof(int));
+		in.read((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			in.read((char*)&carte.autori[i], sizeof(char));
+		}
+		in.read((char*)&carte.nrAutori, sizeof(int));
+		for (int i = 0; i < carte.nrAutori; i++)
+		{
+			in.read((char*)&lungime, sizeof(int));
+			in.read((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++)
+			{
+				in.read((char*)&carte.autori[i][j], sizeof(char));
+			}
+
+		}
+	}
 };
 
 class Pix
@@ -362,7 +444,7 @@ public:
 	friend ostream& operator<<(ostream& out, const Pix& pix)
 	{
 		int i;
-		cout << "\Pix : " << pix.id << "\nPret : " << pix.pret;
+		cout << "\nPix : " << pix.id << "\nPret : " << pix.pret;
 		cout << "\nCulorile pixului : ";
 		if (pix.nrCulori == 0)
 			out << "-";
@@ -511,6 +593,56 @@ public:
 	}
 
 	friend float ofertaCarteSiPix(Pix, Carte);
+
+	friend ofstream& operator<<(ofstream& out, Pix& pix)
+	{
+		out.write((char*)&pix.pret, sizeof(int));
+		out.write((char*)&pix.nrCulori, sizeof(int));
+
+		for (int i = 0; i < pix.nrCulori; i++)
+		{
+			int lungime = strlen(pix.culori[i]) + 1;
+			out.write((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++)
+			{
+				out.write((char*)&pix.culori[i][j], sizeof(char));
+			}
+		}
+
+		return out;
+	}
+
+	friend ifstream& operator>>(ifstream& in, Pix& pix)
+	{
+		in.read((char*)&pix.pret, sizeof(int));
+		in.read((char*)&pix.nrCulori, sizeof(int));
+
+		if (pix.culori != NULL)
+		{
+			for (int i = 0; i < pix.nrCulori; i++)
+			{
+				delete[] pix.culori[i];
+			}
+			delete[] pix.culori;
+		}
+		if (pix.nrCulori > 0)
+		{
+			pix.culori = new char* [pix.nrCulori];
+			for (int i = 0; i < pix.nrCulori; i++)
+			{
+				int lungime = 0;
+				in.read((char*)&lungime, sizeof(int));
+				pix.culori[i] = new char[lungime];
+				for (int j = 0; j < lungime; j++)
+				{
+					in.read((char*)&pix.culori[i][j], sizeof(char));
+				}
+			}
+		}
+
+
+		return in;
+	}
 };
 
 class CreionColorat
@@ -604,7 +736,7 @@ public:
 	friend ostream& operator<<(ostream& out, const CreionColorat& creionC)
 	{
 		int i;
-		cout << "\Set creioane : " << creionC.id << "\nPret : " << creionC.pret << "\nFirma producatoare : " << creionC.firmaProducatoare;
+		cout << "\nSet creioane : " << creionC.id << "\nPret : " << creionC.pret << "\nFirma producatoare : " << creionC.firmaProducatoare;
 		cout << "\nCreioanele colorate : ";
 		if (creionC.nrCreioane == 0)
 			out << "-";
@@ -774,6 +906,46 @@ public:
 
 	friend bool verificaIdValid(CreionColorat creion);
 
+	friend ofstream& operator<<(ofstream& out, CreionColorat& creionC)
+	{
+		out << creionC.pret << " " << creionC.firmaProducatoare << " ";
+		out << creionC.nrCreioane << " ";
+		for (int i = 0; i < creionC.nrCreioane; i++)
+			out << creionC.creioane[i] << " ";
+		return out;
+	}
+
+	friend ifstream& operator>>(ifstream& in, CreionColorat& creionC)
+	{
+		in >> creionC.pret >> creionC.firmaProducatoare;
+		in >> creionC.nrCreioane;
+		if (creionC.creioane != NULL)
+		{
+			for (int i = 0; i < creionC.nrCreioane; i++)
+			{
+				delete[] creionC.creioane[i];
+			}
+			delete[] creionC.creioane;
+		}
+		if (creionC.nrCreioane > 0)
+		{
+			creionC.creioane = new char* [creionC.nrCreioane];
+			for (int i = 0; i < creionC.nrCreioane; i++)
+			{
+				std::string sir;
+				in >> sir;
+				creionC.creioane[i] = new char[sir.length() + 1];
+				strcpy_s(creionC.creioane[i], sir.length() + 1, sir.c_str());
+			}
+		}
+		else
+		{
+			creionC.creioane = NULL;
+			creionC.nrCreioane = 0;
+		}
+		return in;
+	}
+
 };
 
 float ofertaCarteSiPix(Pix pix, Carte carte)
@@ -797,7 +969,7 @@ int CreionColorat::nrTotalCreioane = 0;
 
 //faza 5
 
-class Biblioteca {                                       
+class Biblioteca {
 private:
 	Carte* carti;  //il privesc ca pe un int
 	int nrRafturi;
@@ -812,11 +984,11 @@ public:
 		this->carti = NULL;
 	}
 
-	Biblioteca(int nrCarti, Carte * carti, int nrRafturi, string nume) {  //constructor cu toti parametrii
-		this->nrRafturi =nrRafturi;
+	Biblioteca(int nrCarti, Carte* carti, int nrRafturi, string nume) {  //constructor cu toti parametrii
+		this->nrRafturi = nrRafturi;
 		this->nume = nume;
 		this->nrCarti = nrCarti;
-		this->carti =new Carte [this->nrCarti];
+		this->carti = new Carte[this->nrCarti];
 		for (int i = 0; i < nrCarti; i++)
 			this->carti[i] = carti[i];
 	}
@@ -860,7 +1032,7 @@ public:
 	}
 
 	Carte* getCarti() {
-		return this->carti;   
+		return this->carti;
 	}
 
 	void setCarti(Carte* carti) {
@@ -908,7 +1080,7 @@ public:
 	}
 
 	explicit operator int() {
-	return this->nrRafturi;
+		return this->nrRafturi;
 	}
 
 
@@ -919,20 +1091,53 @@ public:
 		cout << "\nNr cartilor este:" << nrCarti << endl;
 		if (nrCarti == 0)
 			cout << "-";
-		else 
+		else
 			for (i = 0; i < nrCarti; i++) {
 				cout << this->carti[i];
 			}
 		cout << endl;
 	}
 
+	friend ofstream& operator<<(ofstream& out, Biblioteca& biblioteca)
+	{
+		int lungime = biblioteca.nume.length() + 1;
+		out.write((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			out.write((char*)&biblioteca.nume[i], sizeof(char));
+		}
+		out.write((char*)&biblioteca.nrRafturi, sizeof(int));
+		out.write((char*)&biblioteca.nrCarti, sizeof(int));
+		for (int i = 0; i < biblioteca.nrCarti; i++)
+		{
+			afisareBinar(out, biblioteca.carti[i]);
+		}
+		return out;
 
+	}
+
+	friend ifstream& operator>>(ifstream& in, Biblioteca& biblioteca)
+	{
+		int lungime;
+		in.read((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			in.read((char*)&biblioteca.nume[i], sizeof(char));
+		}
+		in.read((char*)&biblioteca.nrRafturi, sizeof(int));
+		in.read((char*)&biblioteca.nrCarti, sizeof(int));
+		for (int i = 0; i < biblioteca.nrCarti; i++)
+		{
+			citireBinar(in, biblioteca.carti[i]);
+		}
+		return in;
+	}
 };
 
 
 void main()
 {
-	
+	/*
 	char** autori = new char* [2];
 	autori[0] = new char[strlen("Mircea Eliade") + 1];
 	autori[1] = new char[strlen("Ion Creanga") + 1];
@@ -1081,7 +1286,7 @@ void main()
 	cout << b1;
 	Biblioteca b2(3, carti, 20, "Nationala");
 	cout << b2;
-
+	*/
 
 	//faza 4
 	/*int n;
@@ -1152,4 +1357,59 @@ void main()
 		delete[] matrice[i];
 	}
 	delete[] matrice;*/
+
+	// faza 6
+	Carte carte1(1, 99999, "Idiotul", 999);
+	ofstream file1;
+	file1.open("carte.txt", ios::out);
+	file1 << carte1;
+	file1.close();
+	Carte carte2;
+	ifstream file2;
+	file2.open("carte.txt", ios::in);
+	file2 >> carte2;
+	cout << carte2;
+	file2.close();
+
+	cout << endl << endl;
+
+	char* sir = new char[strlen("sir") + 1];
+	strcpy_s(sir, strlen("sir") + 1, "sir");
+	CreionColorat set1(1, 222.2, sir);
+	ofstream file3;
+	file3.open("creioane.txt", ios::out);
+	file3 << set1;
+	file3.close();
+	CreionColorat set2;
+	ifstream file4;
+	file4.open("creioane.txt", ios::in);
+	file4 >> set2;
+	cout << set2;
+	file4.close();
+
+
+	Pix pix1(1, 88.9, sir);
+	ofstream file5;
+	file5.open("pix.bin", ios::binary | ios::out);
+	file5 << pix1;
+	file5.close();
+	Pix pix2;
+	ifstream file6;
+	file6.open("pix.bin", ios::binary | ios::in);
+	file6 >> pix2;
+	cout << pix2;
+	file6.close();
+
+
+	Biblioteca b1;
+	ofstream file7;
+	file7.open("biblioteca.bin", ios::binary | ios::out);
+	file7 << b1;
+	file7.close();
+	Biblioteca b2;
+	ifstream file8;
+	file8.open("biblioteca.bin", ios::binary | ios::in);
+	file8 >> b2;
+	cout << b2;
+	file8.close();
 }
