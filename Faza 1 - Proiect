@@ -363,6 +363,68 @@ public:
 	}
 };
 
+class Dictionar : public Carte {
+private:
+	string limba1;
+	string limba2;
+
+public:
+	string getLimba1() {
+		return this->limba1;
+	}
+
+	string getLimba2() {
+		return this->limba2;
+	}
+
+	void setLimba1(string limba1) {
+		this->limba1 = limba1;
+	}
+
+	void setLimba2(string limba2) {
+		this->limba2 = limba2;
+	}
+
+	Dictionar() : Carte() {
+		this->limba1 = "No name";
+		this->limba2 = " No name";
+	}
+
+	Dictionar(int id, float pret, string titlu, char* autor, int pagini, string limba1, string limba2) :Carte(id, pret, titlu, autor, pagini) {
+		this->limba1 = limba1;
+		this->limba2 = limba2;
+	}
+
+	//constructor de copiere
+	Dictionar(const Dictionar& carte) :Carte(carte) {
+		this->limba1 = carte.limba1;
+		this->limba2 = carte.limba2;
+	}
+
+	friend ostream& operator<<(ostream& out, Dictionar& carte)
+	{
+		out << (Carte&)carte;
+		out << carte.limba1;
+		out << carte.limba2;
+		return out;
+	}
+
+	const Dictionar& operator=(const Dictionar& carte) {
+		if (this != &carte)
+		{
+			(Carte&)*this = (Carte&)carte;   ///conversie si apelez atributul =
+			this->limba1 = carte.limba1;
+			this->limba2 = carte.limba2;
+		}
+
+		return *this;
+	}
+
+
+};
+
+
+
 class Pix
 {
 private:
@@ -644,6 +706,57 @@ public:
 		return in;
 	}
 };
+
+
+class PixPilot: public Pix {
+private:
+	bool areGumaDeSters;
+
+public:
+	bool getAreGumaDeSters() {
+		return this->areGumaDeSters;
+	}
+
+	void setAreGumaDeSters(bool areGumaDeSters)
+	{
+		this->areGumaDeSters = areGumaDeSters;
+	}
+
+	PixPilot():Pix () {
+	this->areGumaDeSters = 0;
+    }
+
+	PixPilot(int id, float pret, char** culori, int nrCulori, bool areGumaDeSters) :Pix(id, pret, culori, nrCulori) {
+		this->areGumaDeSters = areGumaDeSters;
+	}
+
+	//constructor de copiere
+	PixPilot(const PixPilot& pix) :Pix(pix) {
+		this->areGumaDeSters = pix.areGumaDeSters;
+	}
+
+	friend ostream& operator<<(ostream& out, PixPilot& pix)
+	{
+		out << (Pix&)pix;
+		if (pix.areGumaDeSters) {
+			out << endl << "Este pix Pilot!" << endl;
+		}
+		else
+			out << "Nu este pix Pilot!";
+		return out;
+	}
+
+	const PixPilot& operator=(const PixPilot& pix) {
+		if (this != &pix)
+		{
+			(Pix&)*this = (Pix&)pix;     ///conversie si apelez atributul =
+		}
+		return *this;
+	}
+
+
+};
+
 
 class CreionColorat
 {
@@ -1359,7 +1472,7 @@ void main()
 	delete[] matrice;*/
 
 	// faza 6
-	Carte carte1(1, 99999, "Idiotul", 999);
+	/*Carte carte1(1, 99999, "Idiotul", 999);
 	ofstream file1;
 	file1.open("carte.txt", ios::out);
 	file1 << carte1;
@@ -1411,5 +1524,40 @@ void main()
 	file8.open("biblioteca.bin", ios::binary | ios::in);
 	file8 >> b2;
 	cout << b2;
-	file8.close();
-}
+	file8.close(); */
+
+   PixPilot pPilot1;
+   cout << pPilot1;
+
+   PixPilot pPilot2;
+   pPilot2 = pPilot1;
+   cout << pPilot2;
+
+   PixPilot pPilot3(pPilot2);
+   cout << pPilot3;
+
+   cout << pPilot2.getAreGumaDeSters();
+
+   Pix pix1;   //upcasting
+   pix1 = (Pix&)pPilot3;
+   cout << pix1;
+
+   Dictionar d1;
+   cout << d1;
+
+   Dictionar d2;
+   d2 = d1;
+   cout << d2;
+
+   Dictionar d3(d2);
+   cout << d3;
+
+   cout << d2.getLimba1();
+   cout << d1.getLimba2();
+
+
+   Carte carte1;
+   carte1 = (Carte&)d3;
+   cout << carte1;
+
+} 
