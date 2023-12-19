@@ -5,11 +5,16 @@ using namespace std;
 
 // Tema Papetarie - Pîrlog Patricia
 
-class Pix;
+class Produs {
+public:
+	virtual float getPret() = 0;
+	virtual void setPret(float pret) = 0;
 
-class Carte
-{
-private:
+};
+
+
+class DeCitit {
+protected:
 	const int id;
 	static int nrCarti;
 	static int nrTotalPagini;
@@ -18,9 +23,8 @@ private:
 	char** autori;
 	int nrAutori;
 	float pret;
-
 public:
-	Carte() : id(20)
+	DeCitit() : id(20)
 	{
 		titlu = "";
 		pagini = 0;
@@ -28,7 +32,7 @@ public:
 		nrAutori = 0;
 		pret = 0;
 	}
-	Carte(const Carte& carte) :id(carte.id)   //constructorul de copiere
+	DeCitit(const DeCitit& carte) :id(carte.id)   //constructorul de copiere
 	{
 		this->pret = carte.pret;
 		this->titlu = carte.titlu;
@@ -42,6 +46,171 @@ public:
 		}
 		nrCarti++;
 		nrTotalPagini += pagini;
+	}
+	DeCitit(int id, float pret, string titlu, char** autori, int nrAutori, int pagini) : id(id)
+	{
+		this->pret = pret;
+		this->titlu = titlu;
+		this->nrAutori = nrAutori;
+		this->autori = new char* [nrAutori];
+		this->pagini = pagini;
+		for (int i = 0; i < this->nrAutori; i++)
+		{
+			this->autori[i] = new char[strlen(autori[i]) + 1];
+			strcpy_s(this->autori[i], strlen(autori[i]) + 1, autori[i]);
+		}
+		nrCarti++;
+		nrTotalPagini += pagini;
+	}
+
+	DeCitit(int id, float pret, string titlu, int pagini) : id(id)
+	{
+		this->pret = pret;
+		this->titlu = titlu;
+		this->nrAutori = 0;
+		this->autori = NULL;
+		this->pagini = pagini;
+		nrCarti++;
+		nrTotalPagini += pagini;
+	}
+
+	DeCitit(int id, float pret, string titlu, char* autor, int pagini) : id(id)
+	{
+		this->pret = pret;
+		this->titlu = titlu;
+		this->nrAutori = 1;
+		this->autori = new char* [1];
+		this->pagini = pagini;
+
+		this->autori[0] = new char[strlen(autor) + 1];
+		strcpy_s(this->autori[0], strlen(autor) + 1, autor);
+
+		nrCarti++;
+		nrTotalPagini += pagini;
+	}
+
+	virtual void afisare() = 0;
+
+
+	friend ostream& operator<<(ostream& out, const DeCitit* obiectDeCitit)
+	{
+		int i;
+		cout << "\nCarte : " << obiectDeCitit->id << "\nPret : " << obiectDeCitit->pret << "\nTitlu  : " << obiectDeCitit->titlu;
+		cout << "\nAutori : ";
+		if (obiectDeCitit->nrAutori == 0)
+			out << "-";
+		else
+			for (int i = 0; i < obiectDeCitit->nrAutori; i++)
+				out << obiectDeCitit->autori[i] << " ";
+		out << endl;
+		return out;
+	}
+
+	friend ofstream& operator<<(ofstream& out, DeCitit* carte)
+	{
+		out << carte->pret << " " << carte->titlu << " " << carte->nrAutori;
+
+		for (int i = 0; i < carte->nrAutori; i++)
+			out << carte->autori[i] << " ";
+		return out;
+	}
+
+	friend ifstream& operator>>(ifstream& in, DeCitit* carte)
+	{
+		in >> carte->pret >> carte->titlu >> carte->nrAutori;
+		if (carte->autori != NULL)
+		{
+			for (int i = 0; i < carte->nrAutori; i++)
+			{
+				delete[] carte->autori[i];
+			}
+			delete[] carte->autori;
+		}
+
+		if (carte->nrAutori > 0)
+		{
+			carte->autori = new char* [carte->nrAutori];
+			for (int i = 0; i < carte->nrAutori; i++)
+			{
+				string sir;
+				in >> sir;
+				carte->autori[i] = new char[sir.length() + 1];
+				strcpy_s(carte->autori[i], sir.length() + 1, sir.c_str());
+			}
+		}
+
+		return in;
+	}
+
+	friend void afisareBinar(ofstream& out, DeCitit* carte)
+	{
+		out.write((char*)&carte->pret, sizeof(int));
+		int lungime = carte->titlu.length();
+		out.write((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			out.write((char*)&carte->autori[i], sizeof(char));
+		}
+		out.write((char*)&carte->nrAutori, sizeof(int));
+		for (int i = 0; i < carte->nrAutori; i++)
+		{
+			lungime = strlen(carte->autori[i]);
+			out.write((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++)
+			{
+				out.write((char*)&carte->autori[i][j], sizeof(char));
+			}
+
+		}
+	}
+
+	friend void citireBinar(ifstream& in, DeCitit* carte)
+	{
+		int lungime;
+		in.read((char*)&carte->pret, sizeof(int));
+		in.read((char*)&lungime, sizeof(int));
+		in.read((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++)
+		{
+			in.read((char*)&carte->autori[i], sizeof(char));
+		}
+		in.read((char*)&carte->nrAutori, sizeof(int));
+		for (int i = 0; i < carte->nrAutori; i++)
+		{
+			in.read((char*)&lungime, sizeof(int));
+			in.read((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++)
+			{
+				in.read((char*)&carte->autori[i][j], sizeof(char));
+			}
+
+		}
+	}
+
+	virtual ~DeCitit()
+	{
+		nrCarti--;
+		nrTotalPagini -= pagini;
+		if (this->autori != NULL)
+		{
+			for (int i = 0; i < this->nrAutori; i++)
+			{
+				delete[] autori[i];
+			}
+			delete[] autori;
+		}
+		nrCarti--;
+	}
+};
+
+
+class Pix;
+
+class Carte : public DeCitit, public Produs
+{
+public:
+	Carte() : DeCitit()
+	{
 	}
 	//operator =
 	const Carte& operator=(const Carte& carte) {
@@ -117,61 +286,21 @@ public:
 
 	}
 
-	Carte(int id, float pret, string titlu, char** autori, int nrAutori, int pagini) : id(id)
+	Carte(int id, float pret, string titlu, char** autori, int nrAutori, int pagini) : DeCitit(id, pret, titlu, autori, nrAutori, pagini)
 	{
-		this->pret = pret;
-		this->titlu = titlu;
-		this->nrAutori = nrAutori;
-		this->autori = new char* [nrAutori];
-		this->pagini = pagini;
-		for (int i = 0; i < this->nrAutori; i++)
-		{
-			this->autori[i] = new char[strlen(autori[i]) + 1];
-			strcpy_s(this->autori[i], strlen(autori[i]) + 1, autori[i]);
-		}
-		nrCarti++;
-		nrTotalPagini += pagini;
+
 	}
 
-	Carte(int id, float pret, string titlu, int pagini) : id(id)
+	Carte(int id, float pret, string titlu, int pagini) : DeCitit(id, pret, titlu, pagini)
 	{
-		this->pret = pret;
-		this->titlu = titlu;
-		this->nrAutori = 0;
-		this->autori = NULL;
-		this->pagini = pagini;
-		nrCarti++;
-		nrTotalPagini += pagini;
 	}
 
-	Carte(int id, float pret, string titlu, char* autor, int pagini) : id(id)
+	Carte(int id, float pret, string titlu, char* autor, int pagini) : DeCitit(id, pret, titlu, autor, pagini)
 	{
-		this->pret = pret;
-		this->titlu = titlu;
-		this->nrAutori = 1;
-		this->autori = new char* [1];
-		this->pagini = pagini;
-
-		this->autori[0] = new char[strlen(autor) + 1];
-		strcpy_s(this->autori[0], strlen(autor) + 1, autor);
-
-		nrCarti++;
-		nrTotalPagini += pagini;
 	}
 
 	~Carte()
 	{
-		nrCarti--;
-		nrTotalPagini -= pagini;
-		if (this->autori != NULL)
-		{
-			for (int i = 0; i < this->nrAutori; i++)
-			{
-				delete[] autori[i];
-			}
-			delete[] autori;
-		}
-		nrCarti--;
 	}
 
 	static float mediePagini()
@@ -425,7 +554,7 @@ public:
 
 
 
-class Pix
+class Pix : public Produs
 {
 private:
 	const int id;
@@ -708,7 +837,7 @@ public:
 };
 
 
-class PixPilot: public Pix {
+class PixPilot : public Pix {
 private:
 	bool areGumaDeSters;
 
@@ -722,9 +851,9 @@ public:
 		this->areGumaDeSters = areGumaDeSters;
 	}
 
-	PixPilot():Pix () {
-	this->areGumaDeSters = 0;
-    }
+	PixPilot() :Pix() {
+		this->areGumaDeSters = 0;
+	}
 
 	PixPilot(int id, float pret, char** culori, int nrCulori, bool areGumaDeSters) :Pix(id, pret, culori, nrCulori) {
 		this->areGumaDeSters = areGumaDeSters;
@@ -758,7 +887,7 @@ public:
 };
 
 
-class CreionColorat
+class CreionColorat : public Produs
 {
 private:
 	const int id;
@@ -1084,7 +1213,7 @@ int CreionColorat::nrTotalCreioane = 0;
 
 class Biblioteca {
 private:
-	Carte* carti;  //il privesc ca pe un int
+	DeCitit** carti;  //il privesc ca pe un int
 	int nrRafturi;
 	int nrCarti;
 	string nume;
@@ -1101,23 +1230,29 @@ public:
 		this->nrRafturi = nrRafturi;
 		this->nume = nume;
 		this->nrCarti = nrCarti;
-		this->carti = new Carte[this->nrCarti];
+		this->carti = (DeCitit**) new Carte * [this->nrCarti];
 		for (int i = 0; i < nrCarti; i++)
-			this->carti[i] = carti[i];
+			this->carti[i] = new Carte(carti[i]);
 	}
 
 	Biblioteca(const Biblioteca& b) {   //constructor de copiere
 		this->nrRafturi = b.nrRafturi;
 		this->nume = b.nume;
 		this->nrCarti = b.nrCarti;
-		this->carti = new Carte[this->nrCarti];
+		this->carti = (DeCitit**) new Carte[this->nrCarti];
 		for (int i = 0; i < nrCarti; i++)
-			this->carti[i] = b.carti[i];
+			this->carti[i] = (DeCitit*)new Carte(*(Carte*)(b.carti[i]));
 	}
 
 	~Biblioteca() {   //destructor
 		if (this->carti != NULL)
-			delete[]carti;
+		{
+			for (int i = 0; i < nrCarti; i++)
+			{
+				delete carti[i];
+			}
+			delete[] carti;
+		}
 	}
 
 	string getNume() {
@@ -1144,19 +1279,23 @@ public:
 		this->nrRafturi = nrRafturi;
 	}
 
-	Carte* getCarti() {
+	DeCitit** getCarti() {
 		return this->carti;
 	}
 
-	void setCarti(Carte* carti) {
+	void setCarti(Carte* carti, int nrCarti) {
 		if (this->carti != NULL) {
-			delete[]carti;
+			for (int i = 0; i < this->nrCarti; i++)
+			{
+				delete this->carti[i];
+			}
+			delete[]this->carti;
 		}
 		this->nrCarti = nrCarti;
-		this->carti = new Carte[this->nrCarti];
+		this->carti = (DeCitit**)new Carte * [this->nrCarti];
 		for (int i = 0; i < nrCarti; i++)
 		{
-			this->carti[i] = carti[i];
+			this->carti[i] = (DeCitit*)new Carte(carti[i]);
 		}
 	}
 
@@ -1184,10 +1323,10 @@ public:
 		this->nrRafturi = b.nrRafturi;
 		this->nume = b.nume;
 		this->nrCarti = b.nrCarti;
-		this->carti = new Carte[this->nrCarti];
+		this->carti = (DeCitit**)new Carte * [this->nrCarti];
 		for (int i = 0; i < nrCarti; i++)
 		{
-			this->carti[i] = b.carti[i];
+			this->carti[i] = (DeCitit*)new Carte(*(Carte*)b.carti[i]);
 		}
 		return *this;
 	}
@@ -1245,6 +1384,7 @@ public:
 		}
 		return in;
 	}
+
 };
 
 
@@ -1526,38 +1666,83 @@ void main()
 	cout << b2;
 	file8.close(); */
 
-   PixPilot pPilot1;
-   cout << pPilot1;
+	// faza 7
+	   //PixPilot pPilot1;
+	   //cout << pPilot1;
 
-   PixPilot pPilot2;
-   pPilot2 = pPilot1;
-   cout << pPilot2;
+	   //PixPilot pPilot2;
+	   //pPilot2 = pPilot1;
+	   //cout << pPilot2;
 
-   PixPilot pPilot3(pPilot2);
-   cout << pPilot3;
+	   //PixPilot pPilot3(pPilot2);
+	   //cout << pPilot3;
 
-   cout << pPilot2.getAreGumaDeSters();
+	   //cout << pPilot2.getAreGumaDeSters();
 
-   Pix pix1;   //upcasting
-   pix1 = (Pix&)pPilot3;
-   cout << pix1;
+	   //Pix pix1;   //upcasting
+	   //pix1 = (Pix&)pPilot3;
+	   //cout << pix1;
 
-   Dictionar d1;
-   cout << d1;
+	   //Dictionar d1;
+	   //cout << d1;
 
-   Dictionar d2;
-   d2 = d1;
-   cout << d2;
+	   //Dictionar d2;
+	   //d2 = d1;
+	   //cout << d2;
 
-   Dictionar d3(d2);
-   cout << d3;
+	   //Dictionar d3(d2);
+	   //cout << d3;
 
-   cout << d2.getLimba1();
-   cout << d1.getLimba2();
+	   //cout << d2.getLimba1();
+	   //cout << d1.getLimba2();
 
 
-   Carte carte1;
-   carte1 = (Carte&)d3;
-   cout << carte1;
+	   //Carte carte1;
+	   //carte1 = (Carte&)d3;
+	   //cout << carte1;
 
-} 
+
+	Biblioteca biblioteca;
+	cout << endl << biblioteca;
+
+	char** autori = new char* [2];
+	autori[0] = new char[strlen("Mircea Eliade") + 1];
+	autori[1] = new char[strlen("Ion Creanga") + 1];
+	strcpy_s(autori[0], strlen("Mircea Eliade") + 1, "Mircea Eliade");
+	strcpy_s(autori[1], strlen("Ion Creanga") + 1, "Ion Creanga");
+	Carte carte1(1, 9.99, "Istoria religiilor", autori, 2, 300);
+	Carte carte2(2, 7, "Povestea lui Harap-Alb", autori[1], 562);
+	Carte carte3(3, 25, "Basm", 562);
+	Carte carte4(carte1);
+	Carte* carti = new Carte[3];
+	carti[0] = carte1;
+	carti[1] = carte2;
+	carti[2] = carte3;
+	cout << carti[0];
+
+	Biblioteca biblioteca2(3, carti, 2, "Biblioteca nationala");
+	cout << endl << endl << biblioteca2;
+
+	Produs* produse[10];
+	produse[0] = new Carte();
+	cout <<endl<< produse[0]->getPret()<<endl;
+	produse[1] = new Pix();
+	cout << endl << produse[1]->getPret() << endl;
+	produse[2] = new Pix();
+	cout << endl << produse[2]->getPret() << endl;
+	produse[3] = new CreionColorat();
+	cout << endl << produse[3]->getPret() << endl;
+	produse[4] = new CreionColorat();
+	cout << endl << produse[4]->getPret() << endl;
+	produse[5] = new Carte();
+	cout << endl << produse[5]->getPret() << endl;
+	produse[6] = new Carte();
+	cout << endl << produse[6]->getPret() << endl;
+	produse[7] = new Pix();
+	cout << endl << produse[7]->getPret() << endl;
+	produse[8] = new PixPilot();
+	cout << endl << produse[8]->getPret() << endl;
+	produse[9] = new Carte();
+	cout << endl << produse[9]->getPret() << endl;
+
+}
